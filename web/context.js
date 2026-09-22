@@ -44,6 +44,11 @@ d3.select('#summary').text(
 const nodes = graph.nodes.map((n) => ({ ...n }));
 const links = graph.links.map((l, i) => ({ ...l, i }));
 const byId = new Map(nodes.map((n) => [n.id, n]));
+
+/** Ids currently passing the filters. The layouts lay out only these. */
+let visibleIds = new Set(nodes.map((n) => n.id));
+const shownNodes = () => nodes.filter((n) => visibleIds.has(n.id));
+const shownLinks = () => links.filter((l) => visibleIds.has(l.source) && visibleIds.has(l.target));
 const kindById = new Map(graph.legend.linkKinds.map((k) => [k.id, k]));
 
 // ------------------------------------------------------------------- cards ---
@@ -115,17 +120,20 @@ function layoutStructure() {
   g.setGraph({ rankdir: 'LR', nodesep: GAP_Y, ranksep: GAP_X, marginx: 30, marginy: 30 });
   g.setDefaultEdgeLabel(() => ({}));
 
-  for (const n of nodes) g.setNode(n.id, { width: n.w, height: n.h });
-  for (const l of links) g.setEdge(l.source, l.target, {}, String(l.i));
+  const use = shownNodes();
+  const edges = shownLinks();
+
+  for (const n of use) g.setNode(n.id, { width: n.w, height: n.h });
+  for (const l of edges) g.setEdge(l.source, l.target, {}, String(l.i));
 
   dagre.layout(g);
 
-  const pos = new Map(nodes.map((n) => {
+  const pos = new Map(use.map((n) => {
     const p = g.node(n.id);
     return [n.id, { x: p.x, y: p.y, width: n.w, height: n.h }];
   }));
   const paths = new Map(
-    links.map((l) => [l.i, line(g.edge({ v: l.source, w: l.target, name: String(l.i) }).points)]),
+    edges.map((l) => [l.i, line(g.edge({ v: l.source, w: l.target, name: String(l.i) }).points)]),
   );
   return { pos, paths, size: g.graph() };
 }
@@ -147,7 +155,7 @@ function layoutChronology() {
   const years = d3.range(graph.timeline.min, graph.timeline.max + 1);
   const columns = new Map(years.map((y) => [y, []]));
   const undated = [];
-  for (const n of nodes) {
+  for (const n of use) {
     const y = n.date ? Number(n.date.slice(0, 4)) : null;
     if (y !== null && columns.has(y)) columns.get(y).push(n);
     else undated.push(n);
@@ -188,7 +196,7 @@ function layoutChronology() {
   for (const [year, members] of columns) placeBand(String(year), members);
   if (undated.length) placeBand('undated', undated);
 
-  const paths = new Map(links.map((l) => [l.i, routeEdge(pos.get(l.source), pos.get(l.target))]));
+  const paths = new Map(shownLinks().map((l) => [l.i, routeEdge(pos.get(l.source), pos.get(l.target))]));
 
   return {
     pos,
@@ -326,7 +334,7 @@ function render(mode, animate = true) {
     const p = layout.pos.get(id);
     if (p) { p.x = at.x; p.y = at.y; }
   }
-  for (const l of links) {
+  for (const l of shownLinks()) {
     if (manual[mode].has(l.source) || manual[mode].has(l.target)) {
       layout.paths.set(l.i, routeEdge(layout.pos.get(l.source), layout.pos.get(l.target)));
     }
@@ -336,13 +344,15 @@ function render(mode, animate = true) {
 
   drawYearAxis(layout);
 
-  const n = animate ? nodeSel.transition().duration(650) : nodeSel;
+  const shown = nodeSel.filter((d) => layout.pos.has(d.id));
+  const n = animate ? shown.transition().duration(650) : shown;
   n.attr('transform', (d) => {
     const p = layout.pos.get(d.id);
     return `translate(${p.x},${p.y})`;
   });
 
-  const l = animate ? linkSel.transition().duration(650) : linkSel;
+  const withPath = linkSel.filter((d) => layout.paths.has(d.i));
+  const l = animate ? withPath.transition().duration(650) : withPath;
   l.attr('d', (d) => layout.paths.get(d.i));
 
   fitToView(layout, animate);
@@ -528,6 +538,16 @@ d3.select('#kind-filters').selectAll('label')
         stroke-width="${k.width}" ${k.dash ? `stroke-dasharray="${k.dash}"` : ''}/>
     </svg>${k.label}`);
 
+d3.select('#topic-filters').selectAll('label')
+  .data(graph.legend.topics)
+  .join('label').attr('class', 'legend-row')
+  .html((t) => {
+    const n = nodes.filter((x) => (x.topics ?? []).includes(t)).length;
+    return `<input type="checkbox" value="${t}" checked>
+      <span class="topic-name">${t.replace(/-/g, ' ')}</span>
+      <span class="count">${n}</span>`;
+  });
+
 let query = '';
 
 const checked = (sel) =>
@@ -536,22 +556,62 @@ const checked = (sel) =>
 function applyFilters() {
   const types = checked('#type-filters');
   const kinds = checked('#kind-filters');
+  const topics = checked('#topic-filters');
+  const allTopics = topics.size === graph.legend.topics.length;
 
-  const visible = new Set();
-  nodeSel.attr('display', (d) => {
-    const shown = types.has(d.type) &&
-      (!query || d.label.toLowerCase().includes(query) ||
-        d.short.toLowerCase().includes(query) ||
-        (d.sublabel ?? '').toLowerCase().includes(query));
-    if (shown) visible.add(d.id);
-    return shown ? null : 'none';
-  });
+  const matches = (d) => {
+    if (!types.has(d.type)) return false;
+    if (query && !(
+      d.label.toLowerCase().includes(query) ||
+      d.short.toLowerCase().includes(query) ||
+      (d.sublabel ?? '').toLowerCase().includes(query)
+    )) return false;
+    // An institution carries no topic of its own — it is kept below if something
+    // still visible is attached to it, so filtering by topic does not strand the
+    // ministries and authorities that give the documents their meaning.
+    if (d.topics === null) return true;
+    return allTopics || d.topics.some((t) => topics.has(t));
+  };
 
+  const visible = new Set(nodes.filter(matches).map((n) => n.id));
+
+  // Drop institutions that nothing visible points at any more.
+  if (!allTopics || query) {
+    for (const n of nodes) {
+      if (n.topics !== null || !visible.has(n.id)) continue;
+      const attached = links.some((l) =>
+        (l.source === n.id && visible.has(l.target) && byId.get(l.target).topics !== null) ||
+        (l.target === n.id && visible.has(l.source) && byId.get(l.source).topics !== null));
+      if (!attached) visible.delete(n.id);
+    }
+  }
+
+  nodeSel.attr('display', (d) => (visible.has(d.id) ? null : 'none'));
   linkSel.attr('display', (d) =>
     kinds.has(d.kind) && visible.has(d.source) && visible.has(d.target) ? null : 'none');
+
+  d3.select('#summary-filtered')
+    .text(visible.size === nodes.length ? '' : ` · showing ${visible.size} of ${nodes.length}`);
+
+  // Re-run the layout over what survived, so a filtered graph uses the whole
+  // canvas instead of leaving the survivors scattered across the old positions.
+  const changed = visible.size !== visibleIds.size ||
+    [...visible].some((id) => !visibleIds.has(id));
+  if (changed) {
+    visibleIds = visible;
+    if (current) render(current.mode);
+  }
 }
 
-d3.selectAll('#type-filters input, #kind-filters input').on('change', applyFilters);
+d3.selectAll('#type-filters input, #kind-filters input, #topic-filters input')
+  .on('change', applyFilters);
+
+function setAllTopics(on) {
+  document.querySelectorAll('#topic-filters input').forEach((i) => { i.checked = on; });
+  applyFilters();
+}
+d3.select('#topics-all').on('click', () => setAllTopics(true));
+d3.select('#topics-none').on('click', () => setAllTopics(false));
 d3.select('#search').on('input', function () {
   query = this.value.trim().toLowerCase();
   applyFilters();
@@ -560,7 +620,7 @@ d3.select('#search').on('input', function () {
 d3.selectAll('input[name="mode"]').on('change', function () { render(this.value); });
 
 d3.select('#reset').on('click', () => {
-  document.querySelectorAll('#type-filters input, #kind-filters input')
+  document.querySelectorAll('#type-filters input, #kind-filters input, #topic-filters input')
     .forEach((i) => { i.checked = true; });
   document.querySelector('#search').value = '';
   document.querySelector('input[name="mode"][value="structure"]').checked = true;

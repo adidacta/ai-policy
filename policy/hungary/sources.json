@@ -16,7 +16,15 @@
       "url": "https://cdn.kormany.hu/uploads/document/c/c0/c0d/c0dfdbd37cfa520ae37361a168d244c85e7295af.pdf",
       "mirror": "https://kormany.hu/application/documents/9d800e88-18c9-4a7e-83b9-73c802b259cf/download",
       "landingPage": "https://kormany.hu/dokumentumtar/magyarorszag-mesterseges-intelligencia-strategiaja-2025-2030-1",
-      "short": "MI Stratégia 2025–2030"
+      "short": "MI Stratégia 2025–2030",
+      "topics": [
+        "governance",
+        "education",
+        "research",
+        "data-economy",
+        "infrastructure",
+        "adoption"
+      ]
     },
     {
       "ref": "A1b",
@@ -28,7 +36,10 @@
       "language": "hu",
       "format": "html",
       "url": "https://njt.jog.gov.hu/jogszabaly/2025-1324-30-22",
-      "short": "1324/2025"
+      "short": "1324/2025",
+      "topics": [
+        "governance"
+      ]
     },
     {
       "ref": "A2",
@@ -42,7 +53,12 @@
       "format": "pdf",
       "url": "https://cdn.kormany.hu/uploads/document/6/67/676/676186555d8df2b1408982bb6ce81c643d5fa4ab.pdf",
       "landingPage": "https://kormany.hu/dokumentumtar/magyarorszag-mesterseges-intelligencia-strategiaja",
-      "short": "MI Stratégia 2020–2030"
+      "short": "MI Stratégia 2020–2030",
+      "topics": [
+        "governance",
+        "education",
+        "research"
+      ]
     },
     {
       "ref": "A2-en",
@@ -54,7 +70,12 @@
       "url": "https://ai-hungary.com/files/api/v1/companies/15/files/146074/view.pdf",
       "mirror": "https://mik.neum.hu/wp-content/uploads/2025/03/2020-hungarian-AI-strategy.pdf",
       "expectBlocked": "Both hosts returned 403 to automated requests on 2026-09-22; retrieve manually in a browser.",
-      "short": "Strategy 2020 (EN)"
+      "short": "Strategy 2020 (EN)",
+      "topics": [
+        "governance",
+        "education",
+        "research"
+      ]
     },
     {
       "ref": "A2b",
@@ -66,7 +87,10 @@
       "language": "hu",
       "format": "html",
       "url": "https://njt.jog.gov.hu/jogszabaly/2020-1573-30-22",
-      "short": "1573/2020"
+      "short": "1573/2020",
+      "topics": [
+        "governance"
+      ]
     },
     {
       "ref": "B3",
@@ -79,7 +103,12 @@
       "language": "hu",
       "format": "pdf",
       "url": "https://magyarkozlony.hu/hivatalos-lapok/Q2wRCD2OMZcqTpNXwXXh68f7c6cf84560/dokumentumok/c19d54dc315cd8eee4294ea8fa244969bea9c3e8/letoltes",
-      "short": "2025. évi LXXV. tv."
+      "short": "2025. évi LXXV. tv.",
+      "topics": [
+        "governance",
+        "market-surveillance",
+        "sandbox"
+      ]
     },
     {
       "ref": "B3b",
@@ -91,7 +120,12 @@
       "format": "html",
       "url": "https://njt.jog.gov.hu/jogszabaly/2025-75-00-00",
       "partOf": "B3",
-      "short": "LXXV — egységes"
+      "short": "LXXV — egységes",
+      "topics": [
+        "governance",
+        "market-surveillance",
+        "sandbox"
+      ]
     },
     {
       "ref": "B3c",
@@ -103,7 +137,11 @@
       "format": "html",
       "url": "https://njt.jog.gov.hu/jogszabaly/2025-75-K0-00",
       "partOf": "B3",
-      "short": "LXXV — indokolás"
+      "short": "LXXV — indokolás",
+      "topics": [
+        "governance",
+        "market-surveillance"
+      ]
     },
     {
       "ref": "B4",
@@ -116,7 +154,11 @@
       "format": "pdf",
       "url": "https://www.parlament.hu/irom42/12632/12632.pdf",
       "expectBlocked": "parlament.hu serves a CAPTCHA interstitial to automated requests; retrieve manually in a browser.",
-      "short": "T/12632"
+      "short": "T/12632",
+      "topics": [
+        "governance",
+        "market-surveillance"
+      ]
     },
     {
       "ref": "B5",
@@ -129,7 +171,11 @@
       "language": "hu",
       "format": "html",
       "url": "https://njt.jog.gov.hu/jogszabaly/2025-344-20-22",
-      "short": "344/2025"
+      "short": "344/2025",
+      "topics": [
+        "governance",
+        "market-surveillance"
+      ]
     },
     {
       "ref": "C6",
@@ -141,7 +187,12 @@
       "language": "hu",
       "format": "html",
       "url": "https://njt.jog.gov.hu/jogszabaly/2024-1301-30-22",
-      "short": "1301/2024"
+      "short": "1301/2024",
+      "topics": [
+        "governance",
+        "market-surveillance",
+        "sandbox"
+      ]
     },
     {
       "ref": "C7",
@@ -153,7 +204,10 @@
       "language": "hu",
       "format": "pdf",
       "url": "https://magyarkozlony.hu/hivatalos-lapok/L54oVxHjLkOGSncnLzCu681bc5b946c7e/dokumentumok/983ece39bde60ba7c2b86d241e74575594d11858/letoltes",
-      "short": "1149/2025"
+      "short": "1149/2025",
+      "topics": [
+        "market-surveillance"
+      ]
     },
     {
       "ref": "C7b",
@@ -166,7 +220,10 @@
       "mirror": "https://njt.jog.gov.hu/jogszabaly/2025-1149-30-22",
       "note": "njt.hu resets automated connections; the njt.jog.gov.hu mirror serves the same text.",
       "partOf": "C7",
-      "short": "1149/2025 — NJT"
+      "short": "1149/2025 — NJT",
+      "topics": [
+        "market-surveillance"
+      ]
     },
     {
       "ref": "C8",
@@ -178,7 +235,10 @@
       "language": "hu",
       "format": "html",
       "url": "https://njt.jog.gov.hu/jogszabaly/2025-1404-30-22",
-      "short": "1404/2025"
+      "short": "1404/2025",
+      "topics": [
+        "international"
+      ]
     },
     {
       "ref": "C9",
@@ -190,7 +250,12 @@
       "language": "hu",
       "format": "html",
       "url": "https://njt.jog.gov.hu/jogszabaly/2025-1405-30-22",
-      "short": "1405/2025"
+      "short": "1405/2025",
+      "topics": [
+        "education",
+        "research",
+        "public-administration"
+      ]
     },
     {
       "ref": "C10",
@@ -202,7 +267,13 @@
       "language": "hu",
       "format": "pdf",
       "url": "https://magyarkozlony.hu/dokumentumok/3afdaef01440c9eb7a8c6685c269d5f3ac8dc465/letoltes",
-      "short": "1406/2025"
+      "short": "1406/2025",
+      "topics": [
+        "public-administration",
+        "health",
+        "research",
+        "sandbox"
+      ]
     },
     {
       "ref": "C10b",
@@ -215,7 +286,13 @@
       "mirror": "https://njt.jog.gov.hu/jogszabaly/2025-1406-30-22",
       "note": "njt.hu resets automated connections; the njt.jog.gov.hu mirror serves the same text.",
       "partOf": "C10",
-      "short": "1406/2025 — NJT"
+      "short": "1406/2025 — NJT",
+      "topics": [
+        "public-administration",
+        "health",
+        "research",
+        "sandbox"
+      ]
     },
     {
       "ref": "D11",
@@ -227,7 +304,10 @@
       "language": "hu",
       "format": "html",
       "url": "https://njt.jog.gov.hu/jogszabaly/2026-90-20-22",
-      "short": "90/2026"
+      "short": "90/2026",
+      "topics": [
+        "governance"
+      ]
     },
     {
       "ref": "D12",
@@ -239,7 +319,11 @@
       "language": "hu",
       "format": "html",
       "url": "https://njt.jog.gov.hu/jogszabaly/2026-139-20-22",
-      "short": "139/2026"
+      "short": "139/2026",
+      "topics": [
+        "governance",
+        "market-surveillance"
+      ]
     },
     {
       "ref": "D13",
@@ -250,7 +334,10 @@
       "language": "hu",
       "format": "html",
       "url": "https://mihivatal.gov.hu/rolunk",
-      "short": "MI Hivatal (web)"
+      "short": "MI Hivatal (web)",
+      "topics": [
+        "market-surveillance"
+      ]
     }
   ]
 }

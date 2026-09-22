@@ -9,7 +9,7 @@
 <body>
   <header>
     <h1 id="title">Context Graph</h1>
-    <p id="summary" class="summary">Loading…</p>
+    <p class="summary"><span id="summary">Loading…</span><span id="summary-filtered"></span></p>
     <nav class="nav">
       <a href="index.html">Our policies</a>
       <a href="context.html?j=hungary" aria-current="page">Hungary</a>
@@ -24,6 +24,13 @@
       <section>
         <h2>Document type</h2>
         <div id="type-filters"></div>
+      </section>
+
+      <section>
+        <h2>Topic</h2>
+        <div id="topic-filters"></div>
+        <button id="topics-none" class="linky" type="button">none</button>
+        <button id="topics-all" class="linky" type="button">all</button>
       </section>
 
       <section>

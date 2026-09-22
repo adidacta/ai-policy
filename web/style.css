@@ -398,3 +398,23 @@ body[data-right="collapsed"] .panel-toggle.right { right: 8px; }
 
 .band-empty { opacity: 0.25; }
 .band-label-empty { font-size: 11px; opacity: 0.7; }
+
+#topic-filters .legend-row { justify-content: flex-start; }
+.topic-name { flex: 1; text-transform: capitalize; }
+.count {
+  font-size: 11px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.linky {
+  padding: 0 4px;
+  font: inherit;
+  font-size: 11.5px;
+  color: var(--muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.linky:hover { color: var(--accent); }
+#summary-filtered { color: var(--accent); }

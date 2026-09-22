@@ -107,6 +107,13 @@ and the same data always draws the same picture:
   arriving in 2024, the 2025 implementing cluster, and the 2026 transfer of
   market surveillance to a new ministry.
 
+**Topic filtering** cuts the corpus to one thread — education, market
+surveillance, international cooperation, and so on. Institutions carry no topic
+of their own: a ministry stays visible while anything attached to it is, and
+drops out when nothing is, so filtering never strands the actors that give the
+documents their meaning. The layout re-runs over whatever survives, so a
+filtered graph uses the whole canvas.
+
 Cards can be dragged; the position is remembered per layout and cleared by
 Reset view. Both side panels collapse, which matters because the graph pane is
 the scarce resource on a laptop.
