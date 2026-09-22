@@ -69,7 +69,7 @@ h1 { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
 main {
   flex: 1;
   display: grid;
-  grid-template-columns: 210px 1fr 300px;
+  grid-template-columns: 210px 1fr 360px;
   min-height: 0;
 }
 
@@ -272,3 +272,129 @@ aside input[type="checkbox"] { accent-color: var(--accent); margin: 0; }
 #detail code { font-size: 11.5px; word-break: break-all; }
 
 .toggle-row { display: flex; align-items: center; gap: 7px; font-size: 13px; }
+
+/* --------------------------------------------------------------------------
+   Node cards.
+
+   The label lives inside the card rather than floating beside a dot, which is
+   what stops labels colliding at any zoom. The card carries the type colour as
+   a glyph rather than as its fill, so the text keeps full contrast against the
+   panel surface in both themes.
+   -------------------------------------------------------------------------- */
+.card { cursor: pointer; }
+
+.card-bg {
+  fill: var(--panel);
+  stroke: var(--border);
+  stroke-width: 1;
+  transition: stroke .12s, filter .12s;
+}
+.card-bg.missing { stroke-dasharray: 4 3; }
+
+.card:hover .card-bg { stroke: var(--accent); }
+.card.focus .card-bg { stroke: var(--accent); stroke-width: 1.8; }
+
+.card-label {
+  font: 600 12.5px ui-sans-serif, -apple-system, "Segoe UI", system-ui, sans-serif;
+  fill: var(--ink);
+  pointer-events: none;
+}
+.card-meta {
+  font: 10.5px ui-sans-serif, -apple-system, "Segoe UI", system-ui, sans-serif;
+  fill: var(--muted);
+  pointer-events: none;
+}
+.glyph { pointer-events: none; }
+
+.link { transition: stroke .12s, opacity .15s; }
+.link.active { stroke: var(--accent); }
+
+.node.dimmed, .link.dimmed { opacity: 0.12; }
+
+#graph { cursor: default; }
+
+#hint {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 4px 10px;
+  font-size: 11.5px;
+  color: var(--muted);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  opacity: 0;
+  transition: opacity .2s;
+  pointer-events: none;
+}
+#hint.shown { opacity: 1; }
+
+.band {
+  fill: var(--panel);
+  stroke: var(--border);
+  stroke-width: 1;
+  opacity: 0.55;
+}
+.band-label {
+  font: 600 13px ui-sans-serif, -apple-system, "Segoe UI", system-ui, sans-serif;
+  fill: var(--muted);
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   Collapsible side panels.
+
+   The canvas is the scarce resource — two fixed panels leave a graph pane too
+   narrow to read on a laptop. Each panel collapses to nothing, and the grid
+   hands the space straight to the canvas.
+   -------------------------------------------------------------------------- */
+main { position: relative; transition: grid-template-columns .22s ease; }
+
+body[data-left="collapsed"] main  { grid-template-columns: 0 1fr 360px; }
+body[data-right="collapsed"] main { grid-template-columns: 210px 1fr 0; }
+body[data-left="collapsed"][data-right="collapsed"] main { grid-template-columns: 0 1fr 0; }
+
+body[data-left="collapsed"] #controls,
+body[data-right="collapsed"] #detail {
+  padding-left: 0;
+  padding-right: 0;
+  overflow: hidden;
+  border: none;
+}
+
+.panel-toggle {
+  position: absolute;
+  top: 10px;
+  z-index: 3;
+  width: 22px;
+  height: 26px;
+  padding: 0;
+  font: 13px/1 ui-sans-serif, system-ui, sans-serif;
+  color: var(--muted);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: left .22s ease, right .22s ease, color .12s;
+}
+.panel-toggle:hover { color: var(--accent); border-color: var(--accent); }
+.panel-toggle.left  { left: 218px; }
+.panel-toggle.right { right: 368px; }
+body[data-left="collapsed"]  .panel-toggle.left  { left: 8px; }
+body[data-right="collapsed"] .panel-toggle.right { right: 8px; }
+
+.tip {
+  margin: 10px 0 0;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.card.dragging { cursor: grabbing; }
+.card.dragging .card-bg { stroke: var(--accent); stroke-width: 1.8; }
+.card:active { cursor: grabbing; }
+
+.band-empty { opacity: 0.25; }
+.band-label-empty { font-size: 11px; opacity: 0.7; }

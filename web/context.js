@@ -3,17 +3,24 @@
  *
  *   context.html?j=hungary
  *
- * Generic over any web/data/<jurisdiction>.json that build-jurisdiction.mjs
- * produces — the data declares its own node types and relation kinds, and the
- * legend and filters are built from that, so a new jurisdiction needs no
- * change here.
+ * Two deterministic layouts, no force simulation:
  *
- * Encoding: colour carries instrument type (three validated slots), shape
- * carries structural kind (document / institution / external). Every node is
- * labelled, so identity never rests on colour alone.
+ *   structure   layered DAG (dagre). This corpus has direction — implements,
+ *               adopts and replaces all flow one way — and a layered layout
+ *               shows that as depth. A force layout renders the same data as
+ *               spaghetti, which is why it is not used here.
+ *   chronology  one column per year, nodes stacked within the column.
+ *
+ * Both are computed, so nothing drifts, jitters, or escapes the canvas, and
+ * the same input always produces the same picture.
+ *
+ * Encoding: colour is instrument type (three validated slots), the glyph on
+ * each card is structural kind, and the label lives inside the card so labels
+ * cannot collide.
  */
 
 import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7/+esm';
+import dagre from 'https://cdn.jsdelivr.net/npm/@dagrejs/dagre@1/+esm';
 
 const jurisdiction = new URLSearchParams(location.search).get('j') ?? 'hungary';
 
@@ -35,185 +42,336 @@ d3.select('#summary').text(
 );
 
 const nodes = graph.nodes.map((n) => ({ ...n }));
-const links = graph.links.map((l) => ({ ...l }));
+const links = graph.links.map((l, i) => ({ ...l, i }));
 const byId = new Map(nodes.map((n) => [n.id, n]));
 const kindById = new Map(graph.legend.linkKinds.map((k) => [k.id, k]));
 
-const colour = (node) => `var(--cat-${node.slot ?? 0})`;
-const SIZE = (node) => (node.shape === 'circle' ? 8 : 7);
+// ------------------------------------------------------------------- cards ---
 
-// --------------------------------------------------------------------- marks ---
+const CARD_H = 42;
+const GAP_X = 70;
+const GAP_Y = 18;
 
-/** Path for a node's shape, centred on the origin. */
-function shapePath(node) {
-  const r = SIZE(node);
-  if (node.shape === 'square') return `M${-r},${-r}H${r}V${r}H${-r}Z`;
-  if (node.shape === 'diamond') {
-    const d = r * 1.3;
-    return `M0,${-d}L${d},0L0,${d}L${-d},0Z`;
-  }
-  return d3.arc()({ innerRadius: 0, outerRadius: r, startAngle: 0, endAngle: Math.PI * 2 });
+// Real text metrics, so a card is exactly as wide as its content needs.
+const ruler = document.createElement('canvas').getContext('2d');
+function textWidth(text, font) {
+  ruler.font = font;
+  return ruler.measureText(text).width;
 }
 
-const { width, height } = svg.node().getBoundingClientRect();
+const LABEL_FONT = '600 12.5px ui-sans-serif, -apple-system, "Segoe UI", system-ui, sans-serif';
+const META_FONT = '10.5px ui-sans-serif, -apple-system, "Segoe UI", system-ui, sans-serif';
+
+for (const node of nodes) {
+  node.meta = [node.typeLabel, node.date?.slice(0, 4)].filter(Boolean).join(' · ');
+  const w = Math.max(textWidth(node.short, LABEL_FONT), textWidth(node.meta, META_FONT));
+  node.w = Math.min(250, Math.max(112, Math.ceil(w) + 46));
+  node.h = CARD_H;
+}
+
+/** The structural-kind glyph drawn inside each card. */
+function glyphPath(shape) {
+  const r = 5;
+  if (shape === 'square') return `M${-r},${-r}H${r}V${r}H${-r}Z`;
+  if (shape === 'diamond') {
+    const d = r * 1.35;
+    return `M0,${-d}L${d},0L0,${d}L${-d},0Z`;
+  }
+  return `M0,${-r}A${r},${r} 0 1,1 0,${r}A${r},${r} 0 1,1 0,${-r}Z`;
+}
+
+// ----------------------------------------------------------------- layouts ---
+
+const line = d3.line().x((p) => p.x).y((p) => p.y).curve(d3.curveBasis);
+
+/**
+ * A curve between two cards, leaving from whichever face points at the other,
+ * so an edge never crosses the card it starts from.
+ *
+ * Also used while dragging: a dragged node invalidates the layout engine's own
+ * routing, so its edges are re-routed with this on every frame.
+ */
+function routeEdge(a, b) {
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+
+  if (Math.abs(dy) >= Math.abs(dx)) {
+    const sy = Math.sign(dy) || 1;
+    const y1 = a.y + sy * (a.height / 2);
+    const y2 = b.y - sy * (b.height / 2);
+    const bend = Math.max(26, Math.abs(y2 - y1) * 0.4);
+    return `M${a.x},${y1}C${a.x},${y1 + sy * bend} ${b.x},${y2 - sy * bend} ${b.x},${y2}`;
+  }
+  const sx = Math.sign(dx) || 1;
+  const x1 = a.x + sx * (a.width / 2);
+  const x2 = b.x - sx * (b.width / 2);
+  const bend = Math.max(26, Math.abs(x2 - x1) * 0.4);
+  return `M${x1},${a.y}C${x1 + sx * bend},${a.y} ${x2 - sx * bend},${b.y} ${x2},${b.y}`;
+}
+
+/** Layered DAG. Returns {x,y} per node id and a path per link. */
+function layoutStructure() {
+  const g = new dagre.graphlib.Graph({ multigraph: true });
+  g.setGraph({ rankdir: 'LR', nodesep: GAP_Y, ranksep: GAP_X, marginx: 30, marginy: 30 });
+  g.setDefaultEdgeLabel(() => ({}));
+
+  for (const n of nodes) g.setNode(n.id, { width: n.w, height: n.h });
+  for (const l of links) g.setEdge(l.source, l.target, {}, String(l.i));
+
+  dagre.layout(g);
+
+  const pos = new Map(nodes.map((n) => {
+    const p = g.node(n.id);
+    return [n.id, { x: p.x, y: p.y, width: n.w, height: n.h }];
+  }));
+  const paths = new Map(
+    links.map((l) => [l.i, line(g.edge({ v: l.source, w: l.target, name: String(l.i) }).points)]),
+  );
+  return { pos, paths, size: g.graph() };
+}
+
+/**
+ * One horizontal band per year, oldest at the top, cards flowing left to right
+ * and wrapping within the band.
+ *
+ * Bands rather than columns because a chronology is read top-to-bottom, and
+ * because columns force the drawing as wide as the number of years — which no
+ * pane is shaped for. Bands stay near the pane's width and grow downwards,
+ * where scrolling is natural.
+ */
+function layoutChronology() {
+  const box = svg.node().getBoundingClientRect();
+  const LABEL_COL = 62;
+  const contentWidth = Math.max(520, box.width / MIN_LEGIBLE_SCALE - 90);
+
+  const years = d3.range(graph.timeline.min, graph.timeline.max + 1);
+  const columns = new Map(years.map((y) => [y, []]));
+  const undated = [];
+  for (const n of nodes) {
+    const y = n.date ? Number(n.date.slice(0, 4)) : null;
+    if (y !== null && columns.has(y)) columns.get(y).push(n);
+    else undated.push(n);
+  }
+
+  const pos = new Map();
+  const bands = [];
+  let cursorY = 54;
+
+  const placeBand = (label, members) => {
+    members.sort((a, b) => (a.date ?? '').localeCompare(b.date ?? '') || a.short.localeCompare(b.short));
+    const top = cursorY;
+    let x = LABEL_COL;
+    let rows = members.length ? 1 : 0;
+
+    for (const n of members) {
+      if (x > LABEL_COL && x + n.w > contentWidth) {
+        x = LABEL_COL;
+        rows++;
+      }
+      pos.set(n.id, {
+        x: x + n.w / 2,
+        y: cursorY + (rows - 1) * (CARD_H + GAP_Y) + CARD_H / 2,
+        width: n.w,
+        height: n.h,
+      });
+      x += n.w + 16;
+    }
+
+    // A year with nothing in it still belongs on the timeline — the gap between
+    // the 2020 strategy and the 2024 EU regulation is part of the story — but it
+    // does not need a full band's height.
+    const height = members.length === 0 ? 30 : rows * (CARD_H + GAP_Y) + 14;
+    bands.push({ label, top: top - 12, height, rows, empty: members.length === 0 });
+    cursorY = top + height;
+  };
+
+  for (const [year, members] of columns) placeBand(String(year), members);
+  if (undated.length) placeBand('undated', undated);
+
+  const paths = new Map(links.map((l) => [l.i, routeEdge(pos.get(l.source), pos.get(l.target))]));
+
+  return {
+    pos,
+    paths,
+    bands,
+    contentWidth,
+    size: { width: contentWidth + 20, height: cursorY + 20 },
+  };
+}
+
+// ------------------------------------------------------------------ drawing ---
+
+const zoomLayer = svg.append('g');
+const axisLayer = zoomLayer.append('g');
+const linkLayer = zoomLayer.append('g');
+const nodeLayer = zoomLayer.append('g');
 
 svg.append('defs').selectAll('marker')
-  .data(graph.legend.linkKinds)
+  .data(['default', 'active'])
   .join('marker')
-    .attr('id', (k) => `head-${k.id}`)
+    .attr('id', (m) => `tip-${m}`)
     .attr('viewBox', '0 -5 10 10')
-    .attr('refX', 16)
+    .attr('refX', 9)
     .attr('markerWidth', 4.5)
     .attr('markerHeight', 4.5)
     .attr('orient', 'auto')
   .append('path')
     .attr('d', 'M0,-4L9,0L0,4')
-    .attr('fill', 'var(--edge)');
+    .attr('fill', (m) => (m === 'active' ? 'var(--accent)' : 'var(--edge)'));
 
-const zoomLayer = svg.append('g');
-
-const linkSel = zoomLayer.append('g')
-  .selectAll('line')
+const linkSel = linkLayer.selectAll('path')
   .data(links)
-  .join('line')
+  .join('path')
     .attr('class', 'link')
+    .attr('fill', 'none')
     .attr('stroke', 'var(--edge)')
     .attr('stroke-width', (d) => kindById.get(d.kind)?.width ?? 1.4)
     .attr('stroke-dasharray', (d) => kindById.get(d.kind)?.dash ?? null)
-    .attr('marker-end', (d) => `url(#head-${d.kind})`);
+    .attr('marker-end', 'url(#tip-default)');
 
-const nodeSel = zoomLayer.append('g')
-  .selectAll('g')
+const nodeSel = nodeLayer.selectAll('g')
   .data(nodes)
   .join('g')
-    .attr('class', 'node');
+    .attr('class', 'node card');
+
+nodeSel.append('rect')
+  .attr('class', (d) => `card-bg${d.archived ? '' : ' missing'}`)
+  .attr('x', (d) => -d.w / 2).attr('y', -CARD_H / 2)
+  .attr('width', (d) => d.w).attr('height', CARD_H)
+  .attr('rx', 7);
 
 nodeSel.append('path')
-  .attr('class', (d) => `node-shape${d.archived ? '' : ' missing'}`)
-  .attr('d', shapePath)
-  .attr('fill', (d) => (d.archived ? colour(d) : 'transparent'))
-  .attr('stroke', (d) => (d.archived ? 'var(--bg)' : colour(d)))
-  .attr('stroke-width', (d) => (d.archived ? 1.5 : 1.8));
+  .attr('class', 'glyph')
+  .attr('d', (d) => glyphPath(d.shape))
+  .attr('transform', (d) => `translate(${-d.w / 2 + 17},0)`)
+  .attr('fill', (d) => (d.archived ? `var(--cat-${d.slot})` : 'transparent'))
+  .attr('stroke', (d) => `var(--cat-${d.slot})`)
+  .attr('stroke-width', 1.5);
 
 nodeSel.append('text')
-  .attr('x', (d) => SIZE(d) + 5)
-  .attr('dy', '0.32em')
+  .attr('class', 'card-label')
+  .attr('x', (d) => -d.w / 2 + 30).attr('y', -2)
   .text((d) => d.short);
 
-// ------------------------------------------------------------------ simulation ---
+nodeSel.append('text')
+  .attr('class', 'card-meta')
+  .attr('x', (d) => -d.w / 2 + 30).attr('y', 12)
+  .text((d) => d.meta);
 
-/** Room for the shape plus its label, which is drawn to the right of the mark. */
-const PAD = { top: 34, right: 190, bottom: 26, left: 26 };
-
-const year = (node) => (node.date ? Number(node.date.slice(0, 4)) : null);
-
-// Rebuilt from the live canvas each time chronological mode is entered, so the
-// axis spans the pane it is actually drawn in rather than the width at load.
-let yearScale = d3.scaleLinear().domain([graph.timeline.min, graph.timeline.max]);
-
-function rescaleYears() {
-  const box = svg.node().getBoundingClientRect();
-  yearScale.range([PAD.left + 34, box.width - 130]);
-}
-rescaleYears();
-
-const simulation = d3.forceSimulation(nodes)
-  .force('link', d3.forceLink(links).id((d) => d.id).distance(125).strength(0.55))
-  .force('charge', d3.forceManyBody().strength(-950))
-  .force('collide', d3.forceCollide(46))
-  .force('center', d3.forceCenter(width / 2, height / 2))
-  .on('tick', () => {
-    // Keep every node inside the canvas. A force-directed layout with this much
-    // charge will otherwise push peripheral nodes past the edge, where they are
-    // unreachable without zooming out. Labels extend to the right, so the right
-    // margin is wider than the left.
-    const box = svg.node().getBoundingClientRect();
-    for (const d of nodes) {
-      d.x = Math.max(PAD.left, Math.min(box.width - PAD.right, d.x));
-      d.y = Math.max(PAD.top, Math.min(box.height - PAD.bottom, d.y));
-    }
-
-    linkSel
-      .attr('x1', (d) => d.source.x).attr('y1', (d) => d.source.y)
-      .attr('x2', (d) => d.target.x).attr('y2', (d) => d.target.y);
-    nodeSel.attr('transform', (d) => `translate(${d.x},${d.y})`);
-  });
-
-const axis = zoomLayer.insert('g', ':first-child').attr('opacity', 0);
-
-function drawYearAxis() {
-  const box = svg.node().getBoundingClientRect();
-  const ticks = d3.range(graph.timeline.min, graph.timeline.max + 1);
-  const g = axis.selectAll('g').data(ticks).join('g')
-    .attr('transform', (y) => `translate(${yearScale(y)},0)`);
-  g.selectAll('line').data((y) => [y]).join('line')
-    .attr('y1', 28).attr('y2', box.height - 16)
-    .attr('stroke', 'var(--border)');
-  g.selectAll('text').data((y) => [y]).join('text')
-    .attr('y', 18).attr('text-anchor', 'middle')
-    .attr('fill', 'var(--muted)').attr('font-size', 11)
-    .text((y) => y);
-}
-
-/** Chronological mode pins x to the document's year and lets y settle freely. */
-function setTimeline(on) {
-  // Labels sit to the right of each mark; in chronological mode the columns are
-  // tight, so the right margin shrinks to give the axis its full span.
-  PAD.right = on ? 120 : 190;
-  axis.attr('opacity', on ? 1 : 0);
-  if (on) {
-    rescaleYears();
-    drawYearAxis();
-    simulation
-      .force('center', null)
-      .force('x', d3.forceX((d) => (year(d) ? yearScale(year(d)) : width / 2)).strength(1))
-      .force('y', d3.forceY(height / 2).strength(0.06))
-      .force('charge', d3.forceManyBody().strength(-260));
-  } else {
-    simulation
-      .force('x', null)
-      .force('y', null)
-      .force('center', d3.forceCenter(width / 2, height / 2))
-      .force('charge', d3.forceManyBody().strength(-780));
-  }
-  simulation.alpha(0.8).restart();
-}
-
-const zoom = d3.zoom().scaleExtent([0.2, 4])
+const zoom = d3.zoom().scaleExtent([0.2, 3])
   .on('zoom', (event) => zoomLayer.attr('transform', event.transform));
 svg.call(zoom);
 
-nodeSel.call(
-  d3.drag()
-    .on('start', (event, d) => {
-      if (!event.active) simulation.alphaTarget(0.3).restart();
-      d.fx = d.x; d.fy = d.y;
-    })
-    .on('drag', (event, d) => { d.fx = event.x; d.fy = event.y; })
-    .on('end', (event, d) => {
-      if (!event.active) simulation.alphaTarget(0);
-      // In chronological mode the x force re-pins it; otherwise let it float.
-      d.fx = null; d.fy = null;
-    }),
-);
+let current = null;
 
-// ------------------------------------------------------------------ interaction ---
+/**
+ * Positions the reader has overridden by dragging, kept per layout mode so that
+ * switching modes and switching back does not lose their arrangement.
+ * Cleared by Reset view.
+ */
+const manual = { structure: new Map(), chronology: new Map() };
+
+function drawYearAxis(layout) {
+  if (!layout.bands) {
+    axisLayer.selectAll('*').remove();
+    return;
+  }
+  const g = axisLayer.selectAll('g').data(layout.bands).join('g')
+    .attr('transform', (b) => `translate(0,${b.top})`);
+
+  g.selectAll('rect').data((b) => [b]).join('rect')
+    .attr('class', (b) => `band${b.empty ? ' band-empty' : ''}`)
+    .attr('x', 8).attr('y', 0)
+    .attr('width', layout.contentWidth).attr('height', (b) => b.height - 8)
+    .attr('rx', 8);
+
+  g.selectAll('text').data((b) => [b]).join('text')
+    .attr('class', (b) => `band-label${b.empty ? ' band-label-empty' : ''}`)
+    .attr('x', 20).attr('y', (b) => (b.empty ? 16 : 26))
+    .text((b) => b.label);
+}
+
+// Below this, the 10.5px meta line stops being readable. A graph that does not
+// fit is better panned than shrunk into illegibility.
+const MIN_LEGIBLE_SCALE = 0.75;
+
+/** Scale and centre the drawing, never shrinking past legibility. */
+function fitToView(layout, animate) {
+  const box = svg.node().getBoundingClientRect();
+  const fit = Math.min(
+    1,
+    box.width / (layout.size.width + 60),
+    box.height / (layout.size.height + 60),
+  );
+  const scale = Math.max(fit, MIN_LEGIBLE_SCALE);
+
+  // When it fits, centre it. When it does not, anchor to the top-left so the
+  // reader starts where the flow starts rather than in the middle of it.
+  const fits = scale <= fit;
+  const tx = fits ? (box.width - layout.size.width * scale) / 2 : 24;
+  const ty = fits ? (box.height - layout.size.height * scale) / 2 : 24;
+
+  d3.select('#hint').classed('shown', !fits);
+
+  const transform = d3.zoomIdentity.translate(tx, ty).scale(scale);
+  (animate ? svg.transition().duration(600) : svg).call(zoom.transform, transform);
+}
+
+function render(mode, animate = true) {
+  const layout = mode === 'chronology' ? layoutChronology() : layoutStructure();
+
+  // Re-apply anything the reader moved by hand in this mode, then re-route the
+  // edges those nodes touch.
+  for (const [id, at] of manual[mode]) {
+    const p = layout.pos.get(id);
+    if (p) { p.x = at.x; p.y = at.y; }
+  }
+  for (const l of links) {
+    if (manual[mode].has(l.source) || manual[mode].has(l.target)) {
+      layout.paths.set(l.i, routeEdge(layout.pos.get(l.source), layout.pos.get(l.target)));
+    }
+  }
+
+  current = { mode, layout };
+
+  drawYearAxis(layout);
+
+  const n = animate ? nodeSel.transition().duration(650) : nodeSel;
+  n.attr('transform', (d) => {
+    const p = layout.pos.get(d.id);
+    return `translate(${p.x},${p.y})`;
+  });
+
+  const l = animate ? linkSel.transition().duration(650) : linkSel;
+  l.attr('d', (d) => layout.paths.get(d.i));
+
+  fitToView(layout, animate);
+}
+
+render('structure', false);
+
+// -------------------------------------------------------------- interaction ---
 
 let pinned = null;
 
 function highlight(id) {
   if (id === null) {
-    nodeSel.classed('dimmed', false);
-    linkSel.classed('dimmed', false);
+    nodeSel.classed('dimmed', false).classed('focus', false);
+    linkSel.classed('dimmed', false).classed('active', false)
+      .attr('marker-end', 'url(#tip-default)');
     return;
   }
   const near = new Set([id]);
   for (const l of links) {
-    if (l.source.id === id) near.add(l.target.id);
-    if (l.target.id === id) near.add(l.source.id);
+    if (l.source === id) near.add(l.target);
+    if (l.target === id) near.add(l.source);
   }
-  nodeSel.classed('dimmed', (d) => !near.has(d.id));
-  linkSel.classed('dimmed', (d) => d.source.id !== id && d.target.id !== id);
+  nodeSel.classed('dimmed', (d) => !near.has(d.id)).classed('focus', (d) => d.id === id);
+  linkSel
+    .classed('dimmed', (d) => d.source !== id && d.target !== id)
+    .classed('active', (d) => d.source === id || d.target === id)
+    .attr('marker-end', (d) =>
+      d.source === id || d.target === id ? 'url(#tip-active)' : 'url(#tip-default)');
 }
 
 nodeSel
@@ -222,7 +380,7 @@ nodeSel
     const [x, y] = d3.pointer(event, svg.node());
     tooltip.attr('hidden', null)
       .style('left', `${x + 14}px`).style('top', `${y + 14}px`)
-      .html(`<strong>${d.label}</strong><span>${d.typeLabel}${d.date ? ` · ${d.date}` : ''}</span>`);
+      .html(`<strong>${d.label}</strong>${d.sublabel ? `<span>${d.sublabel}</span>` : ''}`);
   })
   .on('mouseleave', () => {
     tooltip.attr('hidden', true);
@@ -230,12 +388,63 @@ nodeSel
   })
   .on('click', (event, d) => {
     event.stopPropagation();
+    // d3-drag marks the event when a drag actually moved; a click that ends a
+    // drag should not also toggle selection.
+    if (event.defaultPrevented) return;
     pinned = pinned === d.id ? null : d.id;
     highlight(pinned);
     showDetail(pinned ? d : null);
   });
 
 svg.on('click', () => { pinned = null; highlight(null); showDetail(null); });
+
+// ------------------------------------------------------------------- dragging ---
+
+/**
+ * Cards can be dragged. The layouts are deterministic, so a drag is an override
+ * the reader owns: the position is remembered per layout mode and survives
+ * filtering and selection, and Reset view clears it.
+ *
+ * Only the dragged node's own edges are re-routed — the layout engine's routing
+ * for everything else stays valid, and recomputing all of it per frame would
+ * make the drag stutter.
+ */
+function edgesTouching(id) {
+  return links.filter((l) => l.source === id || l.target === id);
+}
+
+function redrawEdges(subset) {
+  const { pos } = current.layout;
+  linkSel
+    .filter((d) => subset.includes(d))
+    .attr('d', (d) => {
+      const path = routeEdge(pos.get(d.source), pos.get(d.target));
+      current.layout.paths.set(d.i, path);
+      return path;
+    });
+}
+
+nodeSel.call(
+  d3.drag()
+    .on('start', function () {
+      d3.select(this).classed('dragging', true).raise();
+    })
+    .on('drag', function (event, d) {
+      // The pointer is in screen space; the drawing is zoomed and panned.
+      const scale = d3.zoomTransform(svg.node()).k;
+      const p = current.layout.pos.get(d.id);
+      p.x += event.dx / scale;
+      p.y += event.dy / scale;
+
+      d3.select(this).attr('transform', `translate(${p.x},${p.y})`);
+      redrawEdges(edgesTouching(d.id));
+    })
+    .on('end', function (event, d) {
+      d3.select(this).classed('dragging', false);
+      const p = current.layout.pos.get(d.id);
+      manual[current.mode].set(d.id, { x: p.x, y: p.y });
+    }),
+);
 
 // ----------------------------------------------------------------------- detail ---
 
@@ -246,8 +455,8 @@ function relationsFor(id) {
   const out = [];
   for (const l of links) {
     const label = kindById.get(l.kind)?.label ?? l.kind;
-    if (l.source.id === id) out.push({ dir: '→', label, other: l.target.id, basis: l.basis });
-    else if (l.target.id === id) out.push({ dir: '←', label, other: l.source.id, basis: l.basis });
+    if (l.source === id) out.push({ dir: '→', label, other: l.target, basis: l.basis });
+    else if (l.target === id) out.push({ dir: '←', label, other: l.source, basis: l.basis });
   }
   return out;
 }
@@ -258,10 +467,8 @@ function showDetail(node) {
     return;
   }
 
-  const fields = Object.entries(node.fields)
-    .filter(([, v]) => v)
-    .map(([k, v]) => `<dt>${escape(k)}</dt><dd>${escape(v)}</dd>`)
-    .join('');
+  const fields = Object.entries(node.fields).filter(([, v]) => v)
+    .map(([k, v]) => `<dt>${escape(k)}</dt><dd>${escape(v)}</dd>`).join('');
 
   const rels = relationsFor(node.id).map((r) => {
     const other = byId.get(r.other);
@@ -280,9 +487,7 @@ function showDetail(node) {
     <h3>${escape(node.label)}</h3>
     ${node.sublabel ? `<p class="sublabel">${escape(node.sublabel)}</p>` : ''}
     <dl>${fields}</dl>
-    ${node.missingReason
-      ? `<p class="warn"><strong>Not retrieved.</strong> ${escape(node.missingReason)}</p>`
-      : ''}
+    ${node.missingReason ? `<p class="warn"><strong>Not retrieved.</strong> ${escape(node.missingReason)}</p>` : ''}
     ${node.href ? `<p><a href="${escape(node.href)}" target="_blank" rel="noopener">Official source ↗</a></p>` : ''}
     ${alsoAs}
     ${rels ? `<h4>Relations</h4>${rels}` : ''}
@@ -298,14 +503,12 @@ function showDetail(node) {
 
 // ---------------------------------------------------------------------- filters ---
 
-// A legend swatch drawn in the node's own shape and colour, so the legend is a
-// specimen of the mark rather than a generic square.
 function swatch(type) {
-  const r = 6;
+  const r = 5.5;
   const path = type.shape === 'square'
     ? `M${-r},${-r}H${r}V${r}H${-r}Z`
     : type.shape === 'diamond'
-      ? `M0,${-r * 1.3}L${r * 1.3},0L0,${r * 1.3}L${-r * 1.3},0Z`
+      ? `M0,${-r * 1.35}L${r * 1.35},0L0,${r * 1.35}L${-r * 1.35},0Z`
       : `M0,${-r}A${r},${r} 0 1,1 0,${r}A${r},${r} 0 1,1 0,${-r}Z`;
   return `<svg width="18" height="18" viewBox="-9 -9 18 18" aria-hidden="true">
     <path d="${path}" fill="var(--cat-${type.slot})"/></svg>`;
@@ -313,25 +516,22 @@ function swatch(type) {
 
 d3.select('#type-filters').selectAll('label')
   .data(graph.legend.nodeTypes)
-  .join('label')
-  .attr('class', 'legend-row')
+  .join('label').attr('class', 'legend-row')
   .html((t) => `<input type="checkbox" value="${t.id}" checked>${swatch(t)}${t.label}`);
 
 d3.select('#kind-filters').selectAll('label')
   .data(graph.legend.linkKinds)
-  .join('label')
-  .attr('class', 'legend-row')
+  .join('label').attr('class', 'legend-row')
   .html((k) => `<input type="checkbox" value="${k.id}" checked>
-    <svg width="20" height="10" viewBox="0 0 20 10" aria-hidden="true">
-      <line x1="1" y1="5" x2="19" y2="5" stroke="var(--edge)"
+    <svg width="22" height="10" viewBox="0 0 22 10" aria-hidden="true">
+      <line x1="1" y1="5" x2="21" y2="5" stroke="var(--edge)"
         stroke-width="${k.width}" ${k.dash ? `stroke-dasharray="${k.dash}"` : ''}/>
     </svg>${k.label}`);
 
 let query = '';
 
-function checked(selector) {
-  return new Set([...document.querySelectorAll(`${selector} input:checked`)].map((i) => i.value));
-}
+const checked = (sel) =>
+  new Set([...document.querySelectorAll(`${sel} input:checked`)].map((i) => i.value));
 
 function applyFilters() {
   const types = checked('#type-filters');
@@ -341,13 +541,14 @@ function applyFilters() {
   nodeSel.attr('display', (d) => {
     const shown = types.has(d.type) &&
       (!query || d.label.toLowerCase().includes(query) ||
+        d.short.toLowerCase().includes(query) ||
         (d.sublabel ?? '').toLowerCase().includes(query));
     if (shown) visible.add(d.id);
     return shown ? null : 'none';
   });
 
   linkSel.attr('display', (d) =>
-    kinds.has(d.kind) && visible.has(d.source.id) && visible.has(d.target.id) ? null : 'none');
+    kinds.has(d.kind) && visible.has(d.source) && visible.has(d.target) ? null : 'none');
 }
 
 d3.selectAll('#type-filters input, #kind-filters input').on('change', applyFilters);
@@ -355,17 +556,51 @@ d3.select('#search').on('input', function () {
   query = this.value.trim().toLowerCase();
   applyFilters();
 });
-d3.select('#timeline').on('change', function () { setTimeline(this.checked); });
+
+d3.selectAll('input[name="mode"]').on('change', function () { render(this.value); });
 
 d3.select('#reset').on('click', () => {
-  document.querySelectorAll('#controls input[type="checkbox"]').forEach((i) => { i.checked = true; });
-  document.querySelector('#timeline').checked = false;
+  document.querySelectorAll('#type-filters input, #kind-filters input')
+    .forEach((i) => { i.checked = true; });
   document.querySelector('#search').value = '';
+  document.querySelector('input[name="mode"][value="structure"]').checked = true;
   query = '';
   pinned = null;
-  setTimeline(false);
+  manual.structure.clear();
+  manual.chronology.clear();
   applyFilters();
   highlight(null);
   showDetail(null);
-  svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity);
+  render('structure');
 });
+
+window.addEventListener('resize', () => current && fitToView(current.layout, false));
+
+// ------------------------------------------------------------------- panels ---
+
+// Collapsing a panel changes the canvas width, and the chronology layout is
+// measured from it — so the graph is laid out again once the transition ends.
+function setPanel(side, collapsed) {
+  document.body.dataset[side] = collapsed ? 'collapsed' : 'open';
+  const button = document.querySelector(`#toggle-${side}`);
+  button.setAttribute('aria-expanded', String(!collapsed));
+  button.textContent = side === 'left'
+    ? (collapsed ? '›' : '‹')
+    : (collapsed ? '‹' : '›');
+  button.setAttribute('aria-label',
+    `${collapsed ? 'Show' : 'Hide'} ${side === 'left' ? 'filters' : 'details'}`);
+  try {
+    localStorage.setItem(`panel-${side}`, collapsed ? 'collapsed' : 'open');
+  } catch { /* private mode, or storage blocked — the panel still works */ }
+}
+
+for (const side of ['left', 'right']) {
+  let stored = null;
+  try { stored = localStorage.getItem(`panel-${side}`); } catch { /* ignore */ }
+  setPanel(side, stored === 'collapsed');
+
+  d3.select(`#toggle-${side}`).on('click', () => {
+    setPanel(side, document.body.dataset[side] !== 'collapsed');
+    setTimeout(() => current && render(current.mode), 240);
+  });
+}

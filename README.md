@@ -96,10 +96,20 @@ The documents come from `sources.json`; the institutions and relations from a
 hand-authored `relations.json` beside it. Adding a jurisdiction means adding
 those two files — the page is generic and needs no change.
 
-**Chronological mode** ("arrange by year") pins each node to its year, which is
-where a legal corpus becomes legible: the 2020 strategy, the EU AI Act arriving
-in 2024, the 2025 implementing cluster, and the 2026 transfer of market
-surveillance to a new ministry.
+Two layouts, both computed rather than simulated — nothing drifts or jitters,
+and the same data always draws the same picture:
+
+- **structure** — a layered DAG (dagre). This corpus has direction: implements,
+  adopts and replaces all flow one way. A force-directed layout renders that as
+  spaghetti; a layered one shows it as depth.
+- **chronology** — one band per year, oldest at the top. This is where a legal
+  corpus becomes legible: the 2020 strategy, the long gap, the EU AI Act
+  arriving in 2024, the 2025 implementing cluster, and the 2026 transfer of
+  market surveillance to a new ministry.
+
+Cards can be dragged; the position is remembered per layout and cleared by
+Reset view. Both side panels collapse, which matters because the graph pane is
+the scarce resource on a laptop.
 
 Encoding: colour is instrument type, shape is structural kind (circle =
 document, square = institution, diamond = external instrument), and a dashed
