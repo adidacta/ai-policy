@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Policy Context Graph</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>AI Policy Context Graph</h1>
+    <p id="summary" class="summary">Loading…</p>
+  </header>
+
+  <main>
+    <aside id="controls">
+      <section>
+        <h2>Relations</h2>
+        <label><input type="checkbox" data-kind="depends_on" checked> <span class="swatch" data-kind="depends_on"></span> depends on</label>
+        <label><input type="checkbox" data-kind="relates_to" checked> <span class="swatch" data-kind="relates_to"></span> relates to</label>
+        <label><input type="checkbox" data-kind="supersedes" checked> <span class="swatch" data-kind="supersedes"></span> supersedes</label>
+        <label><input type="checkbox" data-kind="tagged" checked> <span class="swatch" data-kind="tagged"></span> tagged</label>
+      </section>
+
+      <section>
+        <h2>Status</h2>
+        <div id="status-filters"></div>
+      </section>
+
+      <section>
+        <h2>Search</h2>
+        <input type="search" id="search" placeholder="Filter by title or tag…" autocomplete="off">
+      </section>
+
+      <button id="reset" type="button">Reset view</button>
+    </aside>
+
+    <div id="canvas">
+      <svg id="graph" role="img" aria-label="Force-directed graph of policy documents and their relationships"></svg>
+      <div id="tooltip" role="tooltip" hidden></div>
+    </div>
+
+    <aside id="detail" aria-live="polite">
+      <p class="placeholder">Select a node to inspect it.</p>
+    </aside>
+  </main>
+
+  <script type="module" src="graph.js"></script>
+</body>
+</html>

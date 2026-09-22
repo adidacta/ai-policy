@@ -1,0 +1,10 @@
+# Generated artifacts — rebuild with `npm run build`
+db/
+web/data/graph.json
+
+# Node
+node_modules/
+npm-debug.log*
+
+# macOS
+.DS_Store

@@ -1,0 +1,17 @@
+{
+  "name": "ai-policy",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI policy documents, a queryable database built from them, and a D3 context graph.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.5"
+  },
+  "scripts": {
+    "validate": "node --no-warnings=ExperimentalWarning scripts/validate.mjs",
+    "build": "node --no-warnings=ExperimentalWarning scripts/build.mjs",
+    "serve": "npm run build && node --no-warnings=ExperimentalWarning scripts/serve.mjs",
+    "query": "node --no-warnings=ExperimentalWarning scripts/query.mjs",
+    "fetch:hungary": "node scripts/fetch-sources.mjs hungary"
+  }
+}

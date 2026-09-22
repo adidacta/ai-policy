@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/adidacta/ai-policy/schema/policy.schema.json",
+  "title": "Policy document frontmatter",
+  "description": "The contract every file in policies/ must satisfy. Enforced by scripts/validate.mjs.",
+  "type": "object",
+  "required": ["id", "title", "status", "version", "updated", "owner"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "Stable kebab-case identifier. Must equal the filename stem. Never reuse or rename — other documents point at it."
+    },
+    "title": { "type": "string", "minLength": 1 },
+    "status": {
+      "enum": ["draft", "review", "active", "superseded", "retired"],
+      "description": "Lifecycle stage. Drives node colour in the graph."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semver. Bump minor for substantive edits, major for changes that alter obligations."
+    },
+    "updated": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "description": "ISO date of the last substantive edit."
+    },
+    "owner": {
+      "type": "string",
+      "description": "Accountable person or team."
+    },
+    "domain": {
+      "type": "string",
+      "description": "Grouping used for graph clustering, e.g. governance, security, procurement."
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Free-form labels. Become tag nodes in the graph."
+    },
+    "depends_on": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Policy ids this document requires to make sense. Directed edge: this -> target."
+    },
+    "relates_to": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Policy ids worth reading alongside. Undirected in meaning, stored directed."
+    },
+    "supersedes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Policy ids this document replaces. Targets should carry status: superseded."
+    },
+    "references": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "External sources: laws, standards, vendor terms. Free text or URL."
+    }
+  }
+}
