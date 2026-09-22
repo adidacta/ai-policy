@@ -1,0 +1,189 @@
+{
+  "jurisdiction": "hungary",
+  "ranAt": "2026-09-22T09:18:41.646Z",
+  "entries": [
+    {
+      "ref": "A1",
+      "slug": "strategy-2025-2030-hu",
+      "status": "present",
+      "path": "policy/hungary/pdf/strategy-2025-2030-hu.pdf",
+      "bytes": 3518035,
+      "sha256": "e2f1056637b6888fad81071ed51037456e5d4da3d73c4c5e5b5002a3761f83c9",
+      "url": "https://cdn.kormany.hu/uploads/document/c/c0/c0d/c0dfdbd37cfa520ae37361a168d244c85e7295af.pdf"
+    },
+    {
+      "ref": "A1b",
+      "slug": "korm-hatarozat-1324-2025",
+      "status": "present",
+      "path": "policy/hungary/html/korm-hatarozat-1324-2025.html",
+      "bytes": 45302,
+      "sha256": "9bc9bb4b41f395d5399a1ff348c1d11cf75f9b79df6943e06353728b55a31dce",
+      "url": "https://njt.jog.gov.hu/jogszabaly/2025-1324-30-22"
+    },
+    {
+      "ref": "A2",
+      "slug": "strategy-2020-2030-hu",
+      "status": "present",
+      "path": "policy/hungary/pdf/strategy-2020-2030-hu.pdf",
+      "bytes": 10049400,
+      "sha256": "acb226325bd9e1df99774c307d629d8557d965d48903dc8148a44a52e99309f0",
+      "url": "https://cdn.kormany.hu/uploads/document/6/67/676/676186555d8df2b1408982bb6ce81c643d5fa4ab.pdf"
+    },
+    {
+      "ref": "A2-en",
+      "slug": "strategy-2020-2030-en",
+      "status": "blocked",
+      "url": "https://ai-hungary.com/files/api/v1/companies/15/files/146074/view.pdf",
+      "reasons": [
+        "https://ai-hungary.com/files/api/v1/companies/15/files/146074/view.pdf → HTTP 403",
+        "https://mik.neum.hu/wp-content/uploads/2025/03/2020-hungarian-AI-strategy.pdf → HTTP 403"
+      ]
+    },
+    {
+      "ref": "A2b",
+      "slug": "korm-hatarozat-1573-2020",
+      "status": "present",
+      "path": "policy/hungary/html/korm-hatarozat-1573-2020.html",
+      "bytes": 43386,
+      "sha256": "1b93f4baf4f82a329af0b685735133d43f38ad2fdeacc7907cf77f84fc9aa501",
+      "url": "https://njt.jog.gov.hu/jogszabaly/2020-1573-30-22"
+    },
+    {
+      "ref": "B3",
+      "slug": "act-lxxv-2025-magyar-kozlony",
+      "status": "present",
+      "path": "policy/hungary/pdf/act-lxxv-2025-magyar-kozlony.pdf",
+      "bytes": 1362300,
+      "sha256": "a7f1d1a01fc9115d7a254c4ca2a6fd958752bc9e8d8e12ba874ff2458a476c25",
+      "url": "https://magyarkozlony.hu/hivatalos-lapok/Q2wRCD2OMZcqTpNXwXXh68f7c6cf84560/dokumentumok/c19d54dc315cd8eee4294ea8fa244969bea9c3e8/letoltes"
+    },
+    {
+      "ref": "B3b",
+      "slug": "act-lxxv-2025-consolidated",
+      "status": "present",
+      "path": "policy/hungary/html/act-lxxv-2025-consolidated.html",
+      "bytes": 84585,
+      "sha256": "8713146c377590a9c7395df9dbcd42e14e3d6ee89ca32dc2ee19293fe486c7b1",
+      "url": "https://njt.jog.gov.hu/jogszabaly/2025-75-00-00"
+    },
+    {
+      "ref": "B3c",
+      "slug": "act-lxxv-2025-indokolas",
+      "status": "present",
+      "path": "policy/hungary/html/act-lxxv-2025-indokolas.html",
+      "bytes": 64906,
+      "sha256": "5c0b51f0991ea0506eb685d570f65b590eb7bc1f5ceaf19f8099222edd074c95",
+      "url": "https://njt.jog.gov.hu/jogszabaly/2025-75-K0-00"
+    },
+    {
+      "ref": "B4",
+      "slug": "bill-t12632",
+      "status": "blocked",
+      "url": "https://www.parlament.hu/irom42/12632/12632.pdf",
+      "reasons": [
+        "https://www.parlament.hu/irom42/12632/12632.pdf → bot challenge page returned"
+      ]
+    },
+    {
+      "ref": "B5",
+      "slug": "korm-rendelet-344-2025",
+      "status": "present",
+      "path": "policy/hungary/html/korm-rendelet-344-2025.html",
+      "bytes": 67979,
+      "sha256": "667006b8b1d7c46e4bb5eb2867ae3417be584b99da94d5f18dccc13d77abbea8",
+      "url": "https://njt.jog.gov.hu/jogszabaly/2025-344-20-22"
+    },
+    {
+      "ref": "C6",
+      "slug": "korm-hatarozat-1301-2024",
+      "status": "present",
+      "path": "policy/hungary/html/korm-hatarozat-1301-2024.html",
+      "bytes": 46592,
+      "sha256": "80bf74ee94c8d0d070e8bc5baee317b1a673b3c654a7dd68b43c19980d12b7b2",
+      "url": "https://njt.jog.gov.hu/jogszabaly/2024-1301-30-22"
+    },
+    {
+      "ref": "C7",
+      "slug": "korm-hatarozat-1149-2025-magyar-kozlony",
+      "status": "present",
+      "path": "policy/hungary/pdf/korm-hatarozat-1149-2025-magyar-kozlony.pdf",
+      "bytes": 850928,
+      "sha256": "80755e774e0ab5b01fa22a488f03fabc2301537be18db02bf565ee476f24b5f8",
+      "url": "https://magyarkozlony.hu/hivatalos-lapok/L54oVxHjLkOGSncnLzCu681bc5b946c7e/dokumentumok/983ece39bde60ba7c2b86d241e74575594d11858/letoltes"
+    },
+    {
+      "ref": "C7b",
+      "slug": "korm-hatarozat-1149-2025",
+      "status": "downloaded",
+      "path": "policy/hungary/html/korm-hatarozat-1149-2025.html",
+      "bytes": 44382,
+      "sha256": "f248f09e106ef29c3bf3516e49e6f4d1e11121eb1349998c477b748425f726a6",
+      "url": "https://njt.jog.gov.hu/jogszabaly/2025-1149-30-22",
+      "fetchedAt": "2026-09-22T09:18:40.247Z"
+    },
+    {
+      "ref": "C8",
+      "slug": "korm-hatarozat-1404-2025",
+      "status": "present",
+      "path": "policy/hungary/html/korm-hatarozat-1404-2025.html",
+      "bytes": 45678,
+      "sha256": "04cc4938c5be7fd03934283c8a2d5e54b01f09ade64b150cda6bd125c7abe83d",
+      "url": "https://njt.jog.gov.hu/jogszabaly/2025-1404-30-22"
+    },
+    {
+      "ref": "C9",
+      "slug": "korm-hatarozat-1405-2025",
+      "status": "present",
+      "path": "policy/hungary/html/korm-hatarozat-1405-2025.html",
+      "bytes": 56483,
+      "sha256": "4eab4becd34734160d49661a28b566e7b636517d7df11ddb3c9f923b3569b8af",
+      "url": "https://njt.jog.gov.hu/jogszabaly/2025-1405-30-22"
+    },
+    {
+      "ref": "C10",
+      "slug": "korm-hatarozat-1406-2025-magyar-kozlony",
+      "status": "present",
+      "path": "policy/hungary/pdf/korm-hatarozat-1406-2025-magyar-kozlony.pdf",
+      "bytes": 2885334,
+      "sha256": "689ae96e08deac91181fb361a4ef49d197a7b20d5278903817feed12f5c2cfdd",
+      "url": "https://magyarkozlony.hu/dokumentumok/3afdaef01440c9eb7a8c6685c269d5f3ac8dc465/letoltes"
+    },
+    {
+      "ref": "C10b",
+      "slug": "korm-hatarozat-1406-2025",
+      "status": "downloaded",
+      "path": "policy/hungary/html/korm-hatarozat-1406-2025.html",
+      "bytes": 55524,
+      "sha256": "46aea1448b2caefebbf4b430f989a4aa99b23f35ec441cfbf28820e8ea328491",
+      "url": "https://njt.jog.gov.hu/jogszabaly/2025-1406-30-22",
+      "fetchedAt": "2026-09-22T09:18:41.641Z"
+    },
+    {
+      "ref": "D11",
+      "slug": "korm-rendelet-90-2026",
+      "status": "present",
+      "path": "policy/hungary/html/korm-rendelet-90-2026.html",
+      "bytes": 747107,
+      "sha256": "8e277504f5e81cbe0a06fcb9810ad65432f21f46f7799b2c0bd34f6dd5cc3cc9",
+      "url": "https://njt.jog.gov.hu/jogszabaly/2026-90-20-22"
+    },
+    {
+      "ref": "D12",
+      "slug": "korm-rendelet-139-2026",
+      "status": "present",
+      "path": "policy/hungary/html/korm-rendelet-139-2026.html",
+      "bytes": 131912,
+      "sha256": "32fdb41f603332028b0451cc3e9ee69103b8e8def905ef40c0fac9633803ef18",
+      "url": "https://njt.jog.gov.hu/jogszabaly/2026-139-20-22"
+    },
+    {
+      "ref": "D13",
+      "slug": "mihivatal-rolunk",
+      "status": "present",
+      "path": "policy/hungary/html/mihivatal-rolunk.html",
+      "bytes": 155367,
+      "sha256": "dab768e1bff89d2614f0498c67241c7373e4851bb5cce344dc2b2af38cdd7948",
+      "url": "https://mihivatal.gov.hu/rolunk"
+    }
+  ]
+}
