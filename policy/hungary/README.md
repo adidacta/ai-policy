@@ -60,6 +60,16 @@ A new science and innovation strategy was presented to Parliament's education
 committee in August–September 2026 — a new AI research institute, a separate AI
 agency, 100 AI researchers. **No official document has been published yet.**
 
+## Exploring it
+
+```bash
+npm run serve
+```
+
+Then open `context.html?j=hungary`. `relations.json` holds the institutions and
+the typed relations between documents; each edge records the basis for it, so
+the graph can be checked against the sources rather than taken on trust.
+
 ## Notes on the files
 
 **The Magyar Közlöny PDFs are whole gazette issues, not extracts.** B3 is issue

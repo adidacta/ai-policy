@@ -1,6 +1,6 @@
 # Generated artifacts — rebuild with `npm run build`
 db/
-web/data/graph.json
+web/data/
 
 # Node
 node_modules/

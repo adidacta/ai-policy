@@ -1,0 +1,268 @@
+{
+  "jurisdiction": "Hungary",
+  "note": "The context layer over sources.json: the institutions the documents act on, and how the documents relate to each other. Hand-authored from the documents themselves; every edge carries the basis for it. Document nodes come from sources.json — this file adds only what is not in the manifest.",
+  "institutions": [
+    {
+      "id": "eu-ai-act",
+      "type": "external",
+      "label": "Regulation (EU) 2024/1689",
+      "sublabel": "EU AI Act",
+      "date": "2024-07-12",
+      "href": "https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
+      "short": "EU AI Act"
+    },
+    {
+      "id": "inst-ngm",
+      "type": "institution",
+      "label": "Nemzetgazdasági Minisztérium",
+      "sublabel": "Ministry for National Economy — held AI market surveillance 2025–2026",
+      "date": "2025-05-14",
+      "short": "NGM"
+    },
+    {
+      "id": "inst-itm",
+      "type": "institution",
+      "label": "Innovációs és Technológiai Minisztérium",
+      "sublabel": "Ministry for Innovation and Technology — issued the 2020 strategy; since dissolved",
+      "date": "2020-05-01",
+      "short": "ITM"
+    },
+    {
+      "id": "inst-ttm",
+      "type": "institution",
+      "label": "Tudományos és Technológiai Minisztérium",
+      "sublabel": "Ministry of Science and Technology — created 2026, minister Tanács Zoltán",
+      "date": "2026-05-13",
+      "short": "TTM"
+    },
+    {
+      "id": "inst-nah",
+      "type": "institution",
+      "label": "Nemzeti Akkreditáló Hatóság",
+      "sublabel": "National Accreditation Authority — the notifying authority",
+      "date": "2025-05-14",
+      "short": "NAH"
+    },
+    {
+      "id": "inst-mihivatal",
+      "type": "institution",
+      "label": "Mesterséges Intelligencia Hivatal",
+      "sublabel": "AI Authority / MI Piacfelügyeleti Hatóság",
+      "date": "2026-08-31",
+      "href": "https://mihivatal.gov.hu/rolunk",
+      "short": "MI Hivatal"
+    },
+    {
+      "id": "inst-ai-council",
+      "type": "institution",
+      "label": "Magyar MI Tanács",
+      "sublabel": "Hungarian AI Council, established by Act LXXV",
+      "date": "2025-12-01",
+      "short": "MI Tanács"
+    },
+    {
+      "id": "inst-sandbox",
+      "type": "institution",
+      "label": "Regulatory sandbox",
+      "sublabel": "Established by Act LXXV; runs to August 2026",
+      "date": "2025-12-01",
+      "short": "Sandbox"
+    }
+  ],
+  "linkKinds": [
+    {
+      "id": "implements",
+      "label": "implements",
+      "dash": null,
+      "width": 1.8
+    },
+    {
+      "id": "adopts",
+      "label": "adopts",
+      "dash": null,
+      "width": 1.4
+    },
+    {
+      "id": "replaces",
+      "label": "replaces",
+      "dash": "6 3",
+      "width": 1.8
+    },
+    {
+      "id": "amends",
+      "label": "amends",
+      "dash": "6 3",
+      "width": 1.4
+    },
+    {
+      "id": "assigns",
+      "label": "assigns role to",
+      "dash": "2 3",
+      "width": 1.4
+    },
+    {
+      "id": "establishes",
+      "label": "establishes",
+      "dash": "2 3",
+      "width": 1.8
+    },
+    {
+      "id": "leads_to",
+      "label": "leads to",
+      "dash": "1 4",
+      "width": 1.2
+    },
+    {
+      "id": "part_of",
+      "label": "part of",
+      "dash": "1 4",
+      "width": 1.2
+    }
+  ],
+  "links": [
+    {
+      "source": "A1b",
+      "target": "A1",
+      "kind": "adopts",
+      "basis": "1324/2025. (IX. 3.) Korm. határozat adopts the 2025–2030 strategy."
+    },
+    {
+      "source": "A2b",
+      "target": "A2",
+      "kind": "adopts",
+      "basis": "1573/2020. (IX. 9.) Korm. határozat adopts the 2020–2030 strategy."
+    },
+    {
+      "source": "A1",
+      "target": "A2",
+      "kind": "replaces",
+      "basis": "The 2025–2030 strategy is the revision of the 2020 strategy; §2.2 asks why a review was needed."
+    },
+    {
+      "source": "A2",
+      "target": "inst-itm",
+      "kind": "assigns",
+      "basis": "The 2020 strategy was issued by the Ministry for Innovation and Technology."
+    },
+    {
+      "source": "A1",
+      "target": "inst-ngm",
+      "kind": "assigns",
+      "basis": "The 2025 strategy was published by the Ministry for National Economy."
+    },
+    {
+      "source": "B3",
+      "target": "eu-ai-act",
+      "kind": "implements",
+      "basis": "Act LXXV of 2025 implements Regulation (EU) 2024/1689 in Hungarian law."
+    },
+    {
+      "source": "B4",
+      "target": "B3",
+      "kind": "leads_to",
+      "basis": "Bill T/12632, submitted 2025-09-23, was enacted as Act LXXV of 2025."
+    },
+    {
+      "source": "B5",
+      "target": "B3",
+      "kind": "implements",
+      "basis": "344/2025. (X. 31.) Korm. rendelet executes the Act: designates authorities, converts the fine ceilings to forint, sets conformity assessment."
+    },
+    {
+      "source": "B3",
+      "target": "inst-ai-council",
+      "kind": "establishes",
+      "basis": "The Act creates the Hungarian AI Council."
+    },
+    {
+      "source": "B3",
+      "target": "inst-sandbox",
+      "kind": "establishes",
+      "basis": "The Act creates a regulatory sandbox running to August 2026."
+    },
+    {
+      "source": "C6",
+      "target": "B3",
+      "kind": "leads_to",
+      "basis": "1301/2024 set the implementation model and ordered a bill by 2024-11-30 — a deadline that was missed; the Act arrived in 2025."
+    },
+    {
+      "source": "C6",
+      "target": "inst-ngm",
+      "kind": "assigns",
+      "basis": "1301/2024 places the single implementing organisation under the Minister for the Economy."
+    },
+    {
+      "source": "C7",
+      "target": "inst-ngm",
+      "kind": "assigns",
+      "basis": "1149/2025 assigns market surveillance and the AI contact point to the Minister for the Economy."
+    },
+    {
+      "source": "C7",
+      "target": "inst-nah",
+      "kind": "assigns",
+      "basis": "1149/2025 makes the National Accreditation Authority the notifying authority."
+    },
+    {
+      "source": "B5",
+      "target": "inst-nah",
+      "kind": "assigns",
+      "basis": "344/2025 designates the notifying and market surveillance authorities."
+    },
+    {
+      "source": "C8",
+      "target": "A1",
+      "kind": "implements",
+      "basis": "1404/2025 carries the strategy into foreign policy: partnerships with the US, China, Israel, the UAE, Germany and Austria."
+    },
+    {
+      "source": "C9",
+      "target": "A1",
+      "kind": "implements",
+      "basis": "1405/2025 carries the strategy into education and public awareness — AI in schooling, mandatory civil service training, a Hungarian ELLIS centre."
+    },
+    {
+      "source": "C10",
+      "target": "A1",
+      "kind": "implements",
+      "basis": "1406/2025 carries the strategy into administration: an AI officer in every ministry by 2026-03-31, industry sandboxes, public-sector and health AI strategies."
+    },
+    {
+      "source": "D11",
+      "target": "inst-ttm",
+      "kind": "establishes",
+      "basis": "90/2026. (V. 13.) Korm. rendelet sets out the powers of the new government's members, including the Ministry of Science and Technology."
+    },
+    {
+      "source": "D12",
+      "target": "D11",
+      "kind": "amends",
+      "basis": "139/2026 amends the powers decree."
+    },
+    {
+      "source": "D12",
+      "target": "inst-ttm",
+      "kind": "assigns",
+      "basis": "139/2026 moves AI market surveillance from the Minister for the Economy and Energy to the Minister for Science and Technology."
+    },
+    {
+      "source": "D12",
+      "target": "inst-ngm",
+      "kind": "replaces",
+      "basis": "The same amendment removes AI market surveillance from the economy portfolio."
+    },
+    {
+      "source": "inst-mihivatal",
+      "target": "inst-ttm",
+      "kind": "part_of",
+      "basis": "The AI Authority is a unit within the Ministry of Science and Technology."
+    },
+    {
+      "source": "inst-mihivatal",
+      "target": "B3",
+      "kind": "implements",
+      "basis": "The Authority exercises the market surveillance function the Act created."
+    }
+  ]
+}

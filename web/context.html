@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jurisdiction Context Graph</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1 id="title">Context Graph</h1>
+    <p id="summary" class="summary">Loading…</p>
+    <nav class="nav">
+      <a href="index.html">Our policies</a>
+      <a href="context.html?j=hungary" aria-current="page">Hungary</a>
+    </nav>
+  </header>
+
+  <main>
+    <aside id="controls">
+      <section>
+        <h2>Document type</h2>
+        <div id="type-filters"></div>
+      </section>
+
+      <section>
+        <h2>Relations</h2>
+        <div id="kind-filters"></div>
+      </section>
+
+      <section>
+        <h2>Layout</h2>
+        <label class="toggle-row"><input type="checkbox" id="timeline"> arrange by year</label>
+      </section>
+
+      <section>
+        <h2>Search</h2>
+        <input type="search" id="search" placeholder="Filter by title…" autocomplete="off">
+      </section>
+
+      <button id="reset" type="button">Reset view</button>
+    </aside>
+
+    <div id="canvas">
+      <svg id="graph" role="img" aria-label="Context graph of AI policy instruments and the institutions they act on"></svg>
+      <div id="tooltip" role="tooltip" hidden></div>
+    </div>
+
+    <aside id="detail" aria-live="polite">
+      <p class="placeholder">Select a node to inspect it.</p>
+    </aside>
+  </main>
+
+  <script type="module" src="context.js"></script>
+</body>
+</html>

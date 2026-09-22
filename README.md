@@ -80,6 +80,35 @@ Click a node to pin it and see its full frontmatter and both directions of every
 relation. Filter by relation kind, by status, or by a text search over titles and
 tags.
 
+## Jurisdiction context graphs
+
+Each archived jurisdiction also gets a graph, at `context.html?j=<jurisdiction>`:
+the instruments and the institutions they act on, with typed relations between
+them — `implements`, `adopts`, `replaces`, `amends`, `assigns role to`,
+`establishes`, `leads to`, `part of`. Every edge carries the basis for it,
+quoted from the document, and shown in the detail panel.
+
+```bash
+npm run graph:hungary
+```
+
+The documents come from `sources.json`; the institutions and relations from a
+hand-authored `relations.json` beside it. Adding a jurisdiction means adding
+those two files — the page is generic and needs no change.
+
+**Chronological mode** ("arrange by year") pins each node to its year, which is
+where a legal corpus becomes legible: the 2020 strategy, the EU AI Act arriving
+in 2024, the 2025 implementing cluster, and the 2026 transfer of market
+surveillance to a new ministry.
+
+Encoding: colour is instrument type, shape is structural kind (circle =
+document, square = institution, diamond = external instrument), and a dashed
+outline means the document is listed but was not retrieved. Only three
+categorical hues are used — on an all-pairs form like a network graph, three is
+the largest set that clears the colour-vision and normal-vision separation
+floors in both light and dark, so structural kinds take shape rather than a
+fourth hue. Every node is labelled, so identity never rests on colour alone.
+
 ## Querying
 
 ```bash

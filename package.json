@@ -9,9 +9,10 @@
   },
   "scripts": {
     "validate": "node --no-warnings=ExperimentalWarning scripts/validate.mjs",
-    "build": "node --no-warnings=ExperimentalWarning scripts/build.mjs",
+    "build": "node --no-warnings=ExperimentalWarning scripts/build.mjs && node scripts/build-jurisdiction.mjs hungary",
     "serve": "npm run build && node --no-warnings=ExperimentalWarning scripts/serve.mjs",
     "query": "node --no-warnings=ExperimentalWarning scripts/query.mjs",
-    "fetch:hungary": "node scripts/fetch-sources.mjs hungary"
+    "fetch:hungary": "node scripts/fetch-sources.mjs hungary",
+    "graph:hungary": "node scripts/build-jurisdiction.mjs hungary"
   }
 }
